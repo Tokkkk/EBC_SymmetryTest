@@ -16,8 +16,9 @@ library(copula)
 library(VineCopula, warn.conflicts = FALSE)
 library(Rcpp); sourceCpp("Cppfunctions.cpp")
 library(profileR)
+library(microbenchmark)
 
-X <- cbind(nutrient$a, nutrient$c)
+X <- cbind(nutrient$calcium, nutrient$iron)
 U <- pobs(X)
 n=nrow(X)
 M=floor(n/90) 
@@ -182,8 +183,12 @@ Tnm.Mul <- function(X, H, n, N, M){
 }
 
 #---------------------------------------------------------
+# microbenchmark(mean(Rn.Mul(X, H=K, n, N)>= Rnm.Stat(X, N, M)[2]), times=20)
+
+
 Rn_hat <- Rn.Mul(X, H=K, n, N)
 pvRn <- mean(Rn_hat >= Rnm.Stat(X, N, M)[2])
+
 
 Rnm_hat <- Rnm.Mul(X, H=K, n, N, M)
 pvRnm <- mean(Rnm_hat >= Rnm.Stat(X, N, M)[1])
@@ -209,6 +214,7 @@ source("EmBetaBoot.R")
 source("Matrix_Bn.R")
 source("RnBeta.R")
 
+
 B_n = Bn(n, N)
 R1 = rank(X[, 1])
 R2 = rank(X[, 2])
@@ -224,7 +230,13 @@ pvbeta = mean(res >= Stat)
 
 print(pvbeta)
 
+#####################################################
+# empirical characteristic function based test Bahraoui et. al 2018
+#####################################################
+source("CF_B.R")
+source("CF_test.R")
 
+DiagSym_CopulaCf_Tests(X, 'N', 3, K)
 
 
 
